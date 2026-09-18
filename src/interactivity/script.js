@@ -1,269 +1,67 @@
-/* =========================
-   GET ELEMENTS
-========================= */
+import { coursesData, translations } from "./data.js";
 
-const languageFilter =
-    document.getElementById("languageFilter");
+const coursesContainer =
+    document.getElementById("coursesContainer");
 
-const technologyFilter =
-    document.getElementById("technologyFilter");
+let currentLanguage = "en";
 
-const levelFilter =
-    document.getElementById("levelFilter");
-
-const minPrice =
-    document.getElementById("minPrice");
-
-const maxPrice =
-    document.getElementById("maxPrice");
-
-const searchInput =
-    document.getElementById("searchInput");
-
-const clearFilters =
-    document.getElementById("clearFilters");
-
-const courses =
-    document.querySelectorAll(".course-card");
-
-const courseCount =
-    document.getElementById("courseCount");
-
-const noResults =
-    document.getElementById("noResults");
-
-const priceValue =
-    document.getElementById("priceValue");
-
-
-/* =========================
-   FILTER FUNCTION
-========================= */
-
-function filterCourses() {
-
-    /*
-        Get current values
-    */
-
-    const selectedLanguage =
-        languageFilter.value;
-
-    const selectedTechnology =
-        technologyFilter.value;
-
-    const selectedLevel =
-        levelFilter.value;
-
-    const minimumPrice =
-        Number(minPrice.value);
-
-    const maximumPrice =
-        Number(maxPrice.value);
-
-    const searchText =
-        searchInput.value.toLowerCase().trim();
-
-
-    /*
-        Keep track of how many
-        courses are visible.
-    */
-
-    let visibleCourses = 0;
-
-
-    /* =========================
-       CHECK EVERY COURSE
-    ========================== */
+function displayCourses(courses) {
+    coursesContainer.innerHTML = "";
 
     courses.forEach(course => {
+        const card = document.createElement("article");
 
-        /*
-            Read the data attributes
-            from the HTML.
-        */
+        card.className = "course-card";
 
-        const language =
-            course.dataset.language;
+        card.dataset.technology = course.technology;
+        card.dataset.level = course.level;
+        card.dataset.price = course.price;
 
-        const technology =
-            course.dataset.technology;
+        card.innerHTML = `
+            <div class="course-image"
+                 style="background-image: url('${course.image}')">
 
-        const level =
-            course.dataset.level;
+                <span class="technology-badge">
+                    ${course.technology}
+                </span>
 
-        const price =
-            Number(course.dataset.price);
+                <span class="level-badge">
+                    ${course.level}
+                </span>
 
+            </div>
 
-        /*
-            Search inside the course
-            title + description.
-        */
+            <div class="course-content">
 
-        const courseText =
-            course.textContent.toLowerCase();
+                <h2>
+                    ${course.title[currentLanguage]}
+                </h2>
 
+                <p class="price">
+                    MGA ${course.price.toLocaleString("en-US")}
+                </p>
 
-        /* =========================
-           CHECK FILTERS
-        ========================== */
+                <p class="description">
+                    ${course.description[currentLanguage]}
+                </p>
 
-        const matchesLanguage =
-            selectedLanguage === "all" ||
-            language === selectedLanguage;
+                <div class="card-buttons">
 
+                    <button class="learn-button">
+                        ${translations[currentLanguage].learnMore}
+                    </button>
 
-        const matchesTechnology =
-            selectedTechnology === "all" ||
-            technology === selectedTechnology;
+                    <button class="cart-button">
+                        ${translations[currentLanguage].addToCart}
+                    </button>
 
+                </div>
 
-        const matchesLevel =
-            selectedLevel === "all" ||
-            level === selectedLevel;
+            </div>
+        `;
 
-
-        const matchesPrice =
-            price >= minimumPrice &&
-            price <= maximumPrice;
-
-
-        const matchesSearch =
-            searchText === "" ||
-            courseText.includes(searchText);
-
-
-        /*
-            Course is visible only if
-            ALL filters match.
-        */
-
-        const shouldDisplay =
-            matchesLanguage &&
-            matchesTechnology &&
-            matchesLevel &&
-            matchesPrice &&
-            matchesSearch;
-
-
-        /* =========================
-           SHOW / HIDE COURSE
-        ========================== */
-
-        if (shouldDisplay) {
-
-            course.style.display = "block";
-
-            visibleCourses++;
-
-        } else {
-
-            course.style.display = "none";
-        }
-
+        coursesContainer.appendChild(card);
     });
-
-
-    /* =========================
-       UPDATE COURSE COUNT
-    ========================== */
-
-    courseCount.textContent =
-        visibleCourses;
-
-
-    /* =========================
-       NO RESULTS MESSAGE
-    ========================== */
-
-    if (visibleCourses === 0) {
-
-        noResults.style.display = "block";
-
-    } else {
-
-        noResults.style.display = "none";
-    }
-
-
-    /* =========================
-       UPDATE PRICE TEXT
-    ========================== */
-
-    priceValue.textContent =
-        `${formatPrice(minimumPrice)} - ${formatPrice(maximumPrice)} MGA`;
 }
 
-
-/* =========================
-   PRICE FORMAT
-========================= */
-
-function formatPrice(price) {
-
-    return price.toLocaleString("en-US");
-}
-
-
-/* =========================
-   FILTER EVENTS
-========================= */
-
-languageFilter.addEventListener(
-    "change",
-    filterCourses
-);
-
-technologyFilter.addEventListener(
-    "change",
-    filterCourses
-);
-
-levelFilter.addEventListener(
-    "change",
-    filterCourses
-);
-
-minPrice.addEventListener(
-    "input",
-    filterCourses
-);
-
-maxPrice.addEventListener(
-    "input",
-    filterCourses
-);
-
-searchInput.addEventListener(
-    "input",
-    filterCourses
-);
-
-
-/* =========================
-   CLEAR ALL FILTERS
-========================= */
-
-clearFilters.addEventListener(
-    "click",
-    function () {
-
-        languageFilter.value = "all";
-
-        technologyFilter.value = "all";
-
-        levelFilter.value = "all";
-
-        minPrice.value = 0;
-
-        maxPrice.value = 300000;
-
-        searchInput.value = "";
-
-        filterCourses();
-    }
-);
-
-filterCourses();
+displayCourses(coursesData);
